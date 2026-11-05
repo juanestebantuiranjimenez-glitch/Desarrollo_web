@@ -1,79 +1,83 @@
-import db from "../../config/database.js";
-
-const programaSelect = `
-    SELECT id, codigo, facultadId, nombre, nivel, CreateBy, CreatedAt
-    FROM programas
-`;
+import Programa, { ProgramaCounter } from "./programas.model.js";
+import Facultad from "../facultades/facultades.model.js";
 
 export async function listarProgramas() {
-    const [rows] = await db.execute(
-        `${programaSelect} ORDER BY nombre ASC`
-    );
-    return rows;
+    return Programa.find()
+        .select("-_id -__v")
+        .sort({ nombre: 1 })
+        .lean();
 }
 
 export async function obtenerProgramaPorId(id) {
-    const [rows] = await db.execute(
-        `${programaSelect} WHERE id = ?`,
-        [id]
-    );
-    return rows[0];
+    return Programa.findOne({ id })
+        .select("-_id -__v")
+        .lean();
 }
 
 export async function crearPrograma({ facultadId, nombre, nivel }) {
-    const connection = await db.getConnection();
+    const latestPrograma = await Programa.findOne()
+        .sort({ id: -1 })
+        .select("id")
+        .lean();
+    const latestId = latestPrograma?.id ?? 0;
 
     try {
-        await connection.beginTransaction();
-        const [result] = await connection.execute(
-            `INSERT INTO programas (codigo, facultadId, nombre, nivel)
-             VALUES (NULL, ?, ?, ?)`,
-            [facultadId, nombre, nivel]
+        await ProgramaCounter.findOneAndUpdate(
+            { _id: "programas" },
+            { $max: { sequence: latestId } },
+            { upsert: true, new: true }
         );
-        const id = result.insertId;
-        const codigo = `PROG-${String(id).padStart(4, "0")}`;
-
-        await connection.execute(
-            `UPDATE programas SET codigo = ? WHERE id = ?`,
-            [codigo, id]
-        );
-        const [rows] = await connection.execute(
-            `${programaSelect} WHERE id = ?`,
-            [id]
-        );
-        await connection.commit();
-
-        return rows[0];
     } catch (error) {
-        await connection.rollback();
-        throw error;
-    } finally {
-        connection.release();
+        if (error.code !== 11000) {
+            throw error;
+        }
+        await ProgramaCounter.updateOne(
+            { _id: "programas" },
+            { $max: { sequence: latestId } }
+        );
     }
+
+    const counter = await ProgramaCounter.findOneAndUpdate(
+        { _id: "programas" },
+        { $inc: { sequence: 1 } },
+        { new: true }
+    );
+    const id = counter.sequence;
+    const codigo = `PROG-${String(id).padStart(4, "0")}`;
+
+    const programa = await Programa.create({
+        id,
+        codigo,
+        facultadId,
+        nombre,
+        nivel
+    });
+    return {
+        id: programa.id,
+        codigo: programa.codigo,
+        facultadId: programa.facultadId,
+        nombre: programa.nombre,
+        nivel: programa.nivel,
+        CreateBy: programa.CreateBy,
+        CreatedAt: programa.CreatedAt
+    };
 }
 
 export async function actualizarPrograma(id, { facultadId, nombre, nivel }) {
-    await db.execute(
-        `UPDATE programas
-         SET facultadId = ?, nombre = ?, nivel = ?
-         WHERE id = ?`,
-        [facultadId, nombre, nivel, id]
-    );
-    return obtenerProgramaPorId(id);
+    return Programa.findOneAndUpdate(
+        { id },
+        { facultadId, nombre, nivel },
+        { new: true, runValidators: true }
+    )
+        .select("-_id -__v")
+        .lean();
 }
 
 export async function eliminarPrograma(id) {
-    const [result] = await db.execute(
-        `DELETE FROM programas WHERE id = ?`,
-        [id]
-    );
-    return result.affectedRows > 0;
+    const result = await Programa.deleteOne({ id });
+    return result.deletedCount > 0;
 }
 
 export async function existeFacultad(id) {
-    const [rows] = await db.execute(
-        `SELECT id FROM facultades WHERE id = ?`,
-        [id]
-    );
-    return rows.length > 0;
+    return Boolean(await Facultad.exists({ _id: id }));
 }

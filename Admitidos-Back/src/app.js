@@ -3,7 +3,6 @@ import { listarFacultades } from "./modules/facultades/facultades.controller.js"
 import facultadesRoutes from "./modules/facultades/facultades.routes.js";
 import programasRoutes from "./modules/programas/programas.routes.js";
 
-
 const app = express();
 
 app.use(express.json());

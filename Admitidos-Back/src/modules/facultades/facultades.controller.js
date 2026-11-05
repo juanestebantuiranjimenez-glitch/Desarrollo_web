@@ -1,4 +1,9 @@
 import * as facultadesService from "./facultades.service.js";
+import { isObjectIdOrHexString } from "mongoose";
+
+function validarId(id) {
+    return isObjectIdOrHexString(id) ? id : null;
+}
 
 function validarNombre(nombre) {
     if (typeof nombre !== "string" || nombre.trim() === "") {
@@ -18,10 +23,17 @@ function validarNombre(nombre) {
 }
 
 function responderErrorDeBaseDeDatos(error, res, mensaje) {
-    if (error.code === "ER_DUP_ENTRY") {
+    if (error.code === 11000) {
         return res.status(409).json({
             statusCode: 409,
-            message: "Ya existe una facultad con ese nombre",
+            message: "Ya existe una facultad con ese nombre o id",
+            success: false
+        });
+    }
+    if (error.name === "ValidationError") {
+        return res.status(400).json({
+            statusCode: 400,
+            message: error.message,
             success: false
         });
     }
@@ -54,10 +66,10 @@ export async function listarFacultades(req, res) {
 }
 
 export async function obtenerFacultadPorId(req, res) {
-    const id = Number(req.params.id);
+    const id = validarId(req.params.id);
     
     try {
-        if (!Number.isInteger(id) || id <= 0) {
+        if (id === null) {
             return res.status(400).json({
                 statusCode: 400,
                 message: "ID inválido",
@@ -101,32 +113,7 @@ export async function crearFacultad(req, res) {
             });
         }
 
-        const idRecibido = req.body?.id;
-        const id = typeof idRecibido === "string" && idRecibido.trim() !== ""
-            ? Number(idRecibido)
-            : idRecibido;
-        if (!Number.isInteger(id) || id <= 0) {
-            return res.status(400).json({
-                statusCode: 400,
-                message: "El id de la facultad debe ser un entero positivo",
-                success: false
-            });
-        }
-
-        const facultadExistente =
-            await facultadesService.obtenerFacultadPorId(id);
-        if (facultadExistente) {
-            return res.status(409).json({
-                statusCode: 409,
-                message: "Ya existe una facultad con ese id",
-                success: false
-            });
-        }
-
-        const facultad = await facultadesService.crearFacultad(
-            validacion.nombre,
-            id
-        );
+        const facultad = await facultadesService.crearFacultad(validacion.nombre);
         res.status(201).json({
             statusCode: 201,
             message: "Facultad creada correctamente",
@@ -144,8 +131,8 @@ export async function crearFacultad(req, res) {
 
 export async function actualizarFacultad(req, res) {
     try {
-        const id = Number(req.params.id);
-        if (!Number.isInteger(id) || id <= 0) {
+        const id = validarId(req.params.id);
+        if (id === null) {
             return res.status(400).json({
                 statusCode: 400,
                 message: "ID inválido",
@@ -192,9 +179,9 @@ export async function actualizarFacultad(req, res) {
 }
 
 export async function eliminarFacultad(req, res) {
-    const id = Number(req.params.id);
+    const id = validarId(req.params.id);
 
-    if (!Number.isInteger(id) || id <= 0) {
+    if (id === null) {
         return res.status(400).json({
             statusCode: 400,
             message: "ID inválido",
@@ -220,8 +207,7 @@ export async function eliminarFacultad(req, res) {
         });
     } catch (error) {
         if (
-            error.code === "ER_ROW_IS_REFERENCED_2" ||
-            error.code === "ER_ROW_IS_REFERENCED"
+            error.code === "FACULTY_HAS_PROGRAMS"
         ) {
             return res.status(409).json({
                 statusCode: 409,

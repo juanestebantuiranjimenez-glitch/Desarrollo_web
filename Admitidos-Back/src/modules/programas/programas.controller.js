@@ -1,4 +1,5 @@
 import * as programasService from "./programas.service.js";
+import { isObjectIdOrHexString } from "mongoose";
 
 const nivelesPermitidos = new Set(["pregrado", "posgrado", "otros", "otro"]);
 
@@ -9,8 +10,12 @@ function validarId(value) {
     return Number.isInteger(id) && id > 0 ? id : null;
 }
 
+function validarFacultadId(value) {
+    return isObjectIdOrHexString(value) ? value : null;
+}
+
 function validarDatosPrograma(body) {
-    const facultadId = validarId(body?.facultadId);
+    const facultadId = validarFacultadId(body?.facultadId);
     const nombreRecibido = body?.nombre ?? body?.name;
     const nombre = typeof nombreRecibido === "string"
         ? nombreRecibido.trim()
@@ -18,7 +23,7 @@ function validarDatosPrograma(body) {
     const nivel = typeof body?.nivel === "string" ? body.nivel.trim() : "";
 
     if (facultadId === null) {
-        return { error: "El facultadId debe ser un entero positivo" };
+        return { error: "El facultadId debe ser un ObjectId válido" };
     }
     if (nombre.length < 3 || nombre.length > 150) {
         return { error: "El nombre debe tener entre 3 y 150 caracteres" };
@@ -31,17 +36,25 @@ function validarDatosPrograma(body) {
 }
 
 function responderError(error, res, mensaje) {
-    if (error.code === "ER_DUP_ENTRY") {
+    if (error.code === 11000) {
         return res.status(409).json({
             statusCode: 409,
             message: "Ya existe un programa con ese código o nombre en la facultad",
             success: false
         });
     }
-    if (error.code === "ER_NO_REFERENCED_ROW_2") {
+    if (error.name === "ValidationError") {
+        return res.status(400).json({
+            statusCode: 400,
+            message: error.message,
+            success: false
+        });
+    }
+
+    if (error.name === "CastError") {
         return res.status(404).json({
             statusCode: 404,
-            message: "La facultad indicada no existe",
+            message: "El identificador indicado no es válido",
             success: false
         });
     }
