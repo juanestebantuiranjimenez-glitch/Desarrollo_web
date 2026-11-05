@@ -1,9 +1,9 @@
 import app from "./app.js";
 import db from "./config/database.js";
 
-const PORT = process.env.PORT ;
-const HOST = process.env.HOST ;
-const APP_NAME = process.env.APP_NAME ;
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || "0.0.0.0";
+const APP_NAME = process.env.APP_NAME || "Admitidos-Back";
 
 async function startServer() {
     try {
@@ -18,4 +18,4 @@ async function startServer() {
     }
 }
 
-    startServer();
+startServer();

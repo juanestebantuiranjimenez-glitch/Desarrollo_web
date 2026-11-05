@@ -12,7 +12,28 @@ export async function obtenerFacultadPorId(id) {
 }
 
 
-export async function crearFacultad(nombre) {
-    const [result] = await db.execute(`INSERT INTO facultades (nombre) VALUES (?)`, [nombre]);
-    return result.insertId;
+export async function crearFacultad(nombre, id) {
+    const [result] = await db.execute(
+        `INSERT INTO facultades (nombre, id) VALUES (?, ?)`,
+        [nombre, id]
+    );
+    const facultad = await obtenerFacultadPorId(id);
+
+    if (!facultad) {
+        throw new Error("La facultad fue insertada, pero no se pudo recuperar");
+    }
+
+    return facultad;
+}
+
+export async function actualizarFacultad(id, nombre) {
+    await db.execute(`UPDATE facultades SET nombre = ? WHERE id = ?`, [nombre, id]);
+
+    return obtenerFacultadPorId(id);
+
+}
+
+export async function eliminarFacultad(id) {
+    const [result] = await db.execute(`DELETE FROM facultades WHERE id = ?`, [id]);
+    return result.affectedRows > 0;
 }
