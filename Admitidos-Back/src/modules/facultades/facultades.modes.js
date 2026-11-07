@@ -1,1 +1,0 @@
-export { default } from "./facultades.model.js";

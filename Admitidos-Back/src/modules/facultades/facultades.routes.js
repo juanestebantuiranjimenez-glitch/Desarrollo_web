@@ -1,11 +1,11 @@
 import { Router } from "express";
 
 import {
-    actualizarFacultad,
-    crearFacultad,
-    eliminarFacultad,
     listarFacultades,
-    obtenerFacultadPorId
+    obtenerFacultadPorId,
+    crearFacultad,
+    actualizarFacultad,
+    eliminarFacultad
 } from "./facultades.controller.js";
 
 const router = Router();

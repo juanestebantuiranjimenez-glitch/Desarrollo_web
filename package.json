@@ -2,8 +2,7 @@
   "name": "Admitidos-Back",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
-  "main": "index.js",
+  "description": "API REST para gestionar facultades, programas y estudiantes",
   "scripts": {
     "dev": "nodemon --env-file=./Admitidos-Back/src/.env ./Admitidos-Back/src/server.js",
     "start": "node --env-file=./Admitidos-Back/src/.env ./Admitidos-Back/src/server.js"

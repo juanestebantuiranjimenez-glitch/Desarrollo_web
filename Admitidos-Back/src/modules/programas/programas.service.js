@@ -1,83 +1,34 @@
-import Programa, { ProgramaCounter } from "./programas.model.js";
-import Facultad from "../facultades/facultades.model.js";
+import Programa from "./programas.model.js";
 
 export async function listarProgramas() {
-    return Programa.find()
-        .select("-_id -__v")
-        .sort({ nombre: 1 })
-        .lean();
+    return await Programa.find().populate("facultad", "nombre").sort({ nombre: 1 });
 }
 
 export async function obtenerProgramaPorId(id) {
-    return Programa.findOne({ id })
-        .select("-_id -__v")
-        .lean();
+    return await Programa.findById(id).populate("facultad", "nombre");
 }
 
-export async function crearPrograma({ facultadId, nombre, nivel }) {
-    const latestPrograma = await Programa.findOne()
-        .sort({ id: -1 })
-        .select("id")
-        .lean();
-    const latestId = latestPrograma?.id ?? 0;
+export async function buscarProgramaPorNombre(nombre, facultad) {
+    return await Programa.findOne({ nombre: nombre.trim(), facultad });
+}
 
-    try {
-        await ProgramaCounter.findOneAndUpdate(
-            { _id: "programas" },
-            { $max: { sequence: latestId } },
-            { upsert: true, new: true }
-        );
-    } catch (error) {
-        if (error.code !== 11000) {
-            throw error;
-        }
-        await ProgramaCounter.updateOne(
-            { _id: "programas" },
-            { $max: { sequence: latestId } }
-        );
-    }
+export async function buscarProgramaPorCodigo(codigo) {
+    return await Programa.findOne({ codigo: codigo.trim().toUpperCase() });
+}
 
-    const counter = await ProgramaCounter.findOneAndUpdate(
-        { _id: "programas" },
-        { $inc: { sequence: 1 } },
-        { new: true }
-    );
-    const id = counter.sequence;
-    const codigo = `PROG-${String(id).padStart(4, "0")}`;
+export async function crearPrograma(datos) {
+    return await Programa.create(datos);
+}
 
-    const programa = await Programa.create({
+export async function actualizarPrograma(id, datos) {
+    return await Programa.findByIdAndUpdate(
         id,
-        codigo,
-        facultadId,
-        nombre,
-        nivel
-    });
-    return {
-        id: programa.id,
-        codigo: programa.codigo,
-        facultadId: programa.facultadId,
-        nombre: programa.nombre,
-        nivel: programa.nivel,
-        CreateBy: programa.CreateBy,
-        CreatedAt: programa.CreatedAt
-    };
-}
-
-export async function actualizarPrograma(id, { facultadId, nombre, nivel }) {
-    return Programa.findOneAndUpdate(
-        { id },
-        { facultadId, nombre, nivel },
-        { new: true, runValidators: true }
-    )
-        .select("-_id -__v")
-        .lean();
+        datos,
+        { returnDocument: "after", runValidators: true }
+    ).populate("facultad", "nombre");
 }
 
 export async function eliminarPrograma(id) {
-    const result = await Programa.deleteOne({ id });
-    return result.deletedCount > 0;
-}
-
-export async function existeFacultad(id) {
-    return Boolean(await Facultad.exists({ _id: id }));
+    const eliminado = await Programa.findByIdAndDelete(id);
+    return eliminado !== null;
 }

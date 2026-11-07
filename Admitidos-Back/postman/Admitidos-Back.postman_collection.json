@@ -1,0 +1,595 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "name": "Api admitidos 2026-2",
+    "description": "CRUD de facultades, programas y estudiantes de Admitidos-Back. No usa autenticación. Ejecuta la colección completa: Health, Facultades → Crear, Programas → Crear y Estudiantes → Crear guardan sus identificadores en variables y, al final, las eliminaciones dejan la base limpia.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "url",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "facultadId",
+      "value": ""
+    },
+    {
+      "key": "programaId",
+      "value": ""
+    },
+    {
+      "key": "estudianteId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/health",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('La API está activa', () => pm.expect(pm.response.json().success).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Facultades",
+      "item": [
+        {
+          "name": "Listar facultades",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/facultades/show/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "facultades",
+                "show"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear facultad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/facultades/create/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "facultades",
+                "create"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"Facultad de Ingeniería\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const datos = pm.response.json();",
+                  "pm.test('Crea la facultad', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('facultadId', datos.data._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar facultad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/facultades/info/{{facultadId}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "facultades",
+                "info",
+                "{{facultadId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar facultad",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/facultades/update/{{facultadId}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "facultades",
+                "update",
+                "{{facultadId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"Facultad de Ingeniería y Ciencias Básicas\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Actualiza la facultad', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Programas",
+      "item": [
+        {
+          "name": "Listar programas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/programas/show/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "programas",
+                "show"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear programa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/programas/create/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "programas",
+                "create"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"codigo\": \"ISI\",\n    \"nombre\": \"Ingeniería de Sistemas\",\n    \"nivel\": \"pregrado\",\n    \"facultad\": \"{{facultadId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const datos = pm.response.json();",
+                  "pm.test('Crea el programa', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('programaId', datos.data._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar programa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/programas/info/{{programaId}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "programas",
+                "info",
+                "{{programaId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar programa",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/programas/update/{{programaId}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "programas",
+                "update",
+                "{{programaId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"codigo\": \"ISI\",\n    \"nombre\": \"Ingeniería de Sistemas\",\n    \"nivel\": \"pregrado\",\n    \"facultad\": \"{{facultadId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Estudiantes",
+      "item": [
+        {
+          "name": "Listar estudiantes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/estudiantes/show/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "estudiantes",
+                "show"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear estudiante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/estudiantes/create/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "estudiantes",
+                "create"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"tipoDocumento\": \"CC\",\n    \"numeroDocumento\": \"1088123456\",\n    \"nombres\": \"Juan José\",\n    \"apellidos\": \"Velásquez Parra\",\n    \"email\": \"juan.velasquez@ucp.edu.co\",\n    \"telefono\": \"3001234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const datos = pm.response.json();",
+                  "pm.test('Crea el estudiante', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('estudianteId', datos.data._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar estudiante",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/estudiantes/info/{{estudianteId}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "estudiantes",
+                "info",
+                "{{estudianteId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar estudiante",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/estudiantes/update/{{estudianteId}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "estudiantes",
+                "update",
+                "{{estudianteId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"tipoDocumento\": \"CC\",\n    \"numeroDocumento\": \"1088123456\",\n    \"nombres\": \"Juan José\",\n    \"apellidos\": \"Velásquez Parra\",\n    \"email\": \"juan.velasquez@ucp.edu.co\",\n    \"telefono\": \"3007654321\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Eliminar estudiante",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{url}}/estudiantes/delete/{{estudianteId}}",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "estudiantes",
+            "delete",
+            "{{estudianteId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Eliminar programa",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{url}}/programas/delete/{{programaId}}",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "programas",
+            "delete",
+            "{{programaId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Eliminar facultad",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{url}}/facultades/delete/{{facultadId}}",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "facultades",
+            "delete",
+            "{{facultadId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
