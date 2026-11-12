@@ -1,4 +1,5 @@
 import express from "express";
+import authRoutes from "./modules/auth/auth.routes.js";
 import facultadesRoutes from "./modules/facultades/facultades.routes.js";
 import programasRoutes from "./modules/programas/programas.routes.js";
 import estudiantesRoutes from "./modules/estudiantes/estudiantes.routes.js";
@@ -7,6 +8,9 @@ const app = express();
 
 app.disable("x-powered-by");
 app.use(express.json());
+
+/* Autenticación */
+app.use("/api/auth", authRoutes);
 
 /* Facultades */
 app.use("/api/facultades", facultadesRoutes);

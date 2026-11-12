@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import { autenticar, soloAdmin } from "../../middleware/auth.middleware.js";
 import {
     listarFacultades,
     obtenerFacultadPorId,
@@ -10,10 +11,10 @@ import {
 
 const router = Router();
 
-router.get("/show/", listarFacultades);
-router.get("/info/:id", obtenerFacultadPorId);
-router.post("/create/", crearFacultad);
-router.put("/update/:id", actualizarFacultad);
-router.delete("/delete/:id", eliminarFacultad);
+router.get("/show/", autenticar, listarFacultades);
+router.get("/info/:id", autenticar, obtenerFacultadPorId);
+router.post("/create/", autenticar, soloAdmin, crearFacultad);
+router.put("/update/:id", autenticar, soloAdmin, actualizarFacultad);
+router.delete("/delete/:id", autenticar, soloAdmin, eliminarFacultad);
 
 export default router;

@@ -2,8 +2,14 @@ import mongoose from "mongoose";
 
 import * as ProgramasService from "./programas.service.js";
 import * as FacultadesService from "../facultades/facultades.service.js";
+import * as EstudiantesService from "../estudiantes/estudiantes.service.js";
 
 const nivelesPermitidos = ["pregrado", "posgrado", "otros"];
+
+async function obtenerFacultadIdDelEstudiante(usuarioId) {
+    const estudiante = await EstudiantesService.obtenerEstudiantePorUsuario(usuarioId);
+    return estudiante?.programa?.facultad?._id ?? null;
+}
 
 async function validarDatosPrograma({ codigo, nombre, nivel, facultad }) {
     if (codigo === undefined || nombre === undefined || nivel === undefined || facultad === undefined) {
@@ -36,6 +42,20 @@ async function validarDatosPrograma({ codigo, nombre, nivel, facultad }) {
 
 export async function listarProgramas(req, res) {
     try {
+        if (req.usuario?.rol === "estudiante") {
+            const facultadId = await obtenerFacultadIdDelEstudiante(req.usuario.id);
+            const programas = facultadId
+                ? await ProgramasService.listarProgramasPorFacultad(facultadId)
+                : [];
+
+            return res.json({
+                statusCode: 200,
+                success: true,
+                message: "Programas listados correctamente",
+                data: programas
+            });
+        }
+
         const programas = await ProgramasService.listarProgramas();
         res.json({
             statusCode: 200,
@@ -72,6 +92,18 @@ export async function obtenerProgramaPorId(req, res) {
                 success: false,
                 message: "Programa no encontrado"
             });
+        }
+
+        if (req.usuario?.rol === "estudiante") {
+            const facultadId = await obtenerFacultadIdDelEstudiante(req.usuario.id);
+
+            if (!facultadId || programa.facultad?._id?.toString() !== facultadId.toString()) {
+                return res.status(403).json({
+                    statusCode: 403,
+                    success: false,
+                    message: "No tienes acceso a este programa"
+                });
+            }
         }
 
         res.json({

@@ -4,6 +4,12 @@ export async function listarProgramas() {
     return await Programa.find().populate("facultad", "nombre").sort({ nombre: 1 });
 }
 
+export async function listarProgramasPorFacultad(facultadId) {
+    return await Programa.find({ facultad: facultadId })
+        .populate("facultad", "nombre")
+        .sort({ nombre: 1 });
+}
+
 export async function obtenerProgramaPorId(id) {
     return await Programa.findById(id).populate("facultad", "nombre");
 }

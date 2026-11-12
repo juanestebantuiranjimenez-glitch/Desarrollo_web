@@ -2,13 +2,61 @@
   "info": {
     "_postman_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
     "name": "Api admitidos 2026-2",
-    "description": "CRUD de facultades, programas y estudiantes de Admitidos-Back. No usa autenticación. Ejecuta la colección completa: Health, Facultades → Crear, Programas → Crear y Estudiantes → Crear guardan sus identificadores en variables y, al final, las eliminaciones dejan la base limpia.",
+    "description": "API de facultades, programas y estudiantes con autenticación JWT. Ejecuta la colección en orden: primero el login de administrador guarda adminToken; luego se crean facultad y programa; el registro público crea un estudiante y guarda estudianteToken. Las escrituras usan adminToken y los estudiantes solo pueden leer su facultad y sus programas. La limpieza elimina el estudiante creado por el administrador, el programa y la facultad; la cuenta creada por el registro público permanece porque no existe un endpoint para eliminar usuarios.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "url",
       "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@admitidos.edu.co"
+    },
+    {
+      "key": "adminPassword",
+      "value": "Admin12345"
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "estudianteEmail",
+      "value": ""
+    },
+    {
+      "key": "estudiantePassword",
+      "value": "Estudiante123"
+    },
+    {
+      "key": "estudianteDocumento",
+      "value": ""
+    },
+    {
+      "key": "estudianteToken",
+      "value": ""
+    },
+    {
+      "key": "estudianteUsuarioId",
+      "value": ""
+    },
+    {
+      "key": "nuevoAdminNombre",
+      "value": "Administrador de Prueba"
+    },
+    {
+      "key": "nuevoAdminEmail",
+      "value": "admin.prueba@admitidos.edu.co"
+    },
+    {
+      "key": "nuevoAdminPassword",
+      "value": "Admin12345"
+    },
+    {
+      "key": "token",
+      "value": ""
     },
     {
       "key": "facultadId",
@@ -20,6 +68,18 @@
     },
     {
       "key": "estudianteId",
+      "value": ""
+    },
+    {
+      "key": "estudianteAdminId",
+      "value": ""
+    },
+    {
+      "key": "estudianteAdminEmail",
+      "value": ""
+    },
+    {
+      "key": "estudianteAdminDocumento",
       "value": ""
     }
   ],
@@ -40,6 +100,9 @@
               "path": [
                 "health"
               ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           },
           "event": [
@@ -50,6 +113,294 @@
                 "exec": [
                   "pm.test('Responde 200', () => pm.response.to.have.status(200));",
                   "pm.test('La API está activa', () => pm.expect(pm.response.json().success).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Autenticación",
+      "description": "Login y registro. Los scripts guardan los tokens en las variables adminToken y estudianteToken, y dejan token apuntando al último login.",
+      "item": [
+        {
+          "name": "Programas para registro (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/auth/programas",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "programas"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test('Devuelve una lista de programas', () => pm.expect(datos.data).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login administrador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/auth/login",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{adminEmail}}\",\n    \"password\": \"{{adminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const datos = pm.response.json();",
+                  "pm.test('Inicia sesión como administrador', () => pm.response.to.have.status(200));",
+                  "pm.test('Devuelve un token', () => pm.expect(datos.data.token).to.be.a('string'));",
+                  "pm.collectionVariables.set('token', datos.data.token);",
+                  "pm.collectionVariables.set('adminToken', datos.data.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mi perfil (administrador)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/auth/me",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test('El rol es admin', () => pm.expect(datos.data.usuario.rol).to.eql('admin'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar foto de perfil",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/auth/me/avatar",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "me",
+                "avatar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"avatar\": \"mike\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test('Guarda el avatar seleccionado', () => pm.expect(datos.data.usuario.avatar).to.eql('mike'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar administradores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/auth/admins",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "admins"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test('Devuelve administradores', () => pm.expect(datos.data).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear administrador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/auth/register/admin",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "register",
+                "admin"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"{{nuevoAdminNombre}}\",\n    \"email\": \"{{nuevoAdminEmail}}\",\n    \"password\": \"{{nuevoAdminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const s = Date.now() + 2;",
+                  "pm.collectionVariables.set(\"nuevoAdminEmail\", `admin.prueba.${s}@admitidos.edu.co`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const datos = pm.response.json();",
+                  "pm.test('Crea el administrador', () => pm.response.to.have.status(201));",
+                  "pm.test('El rol es admin', () => pm.expect(datos.data.rol).to.eql('admin'));"
                 ]
               }
             }
@@ -74,6 +425,16 @@
                 "facultades",
                 "show"
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "event": [
@@ -82,7 +443,9 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test('Devuelve una lista', () => pm.expect(datos.data).to.be.an('array'));"
                 ]
               }
             }
@@ -106,6 +469,16 @@
               "path": [
                 "facultades",
                 "create"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
               ]
             },
             "body": {
@@ -147,6 +520,16 @@
                 "info",
                 "{{facultadId}}"
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "event": [
@@ -182,6 +565,16 @@
                 "{{facultadId}}"
               ]
             },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "body": {
               "mode": "raw",
               "raw": "{\n    \"nombre\": \"Facultad de Ingeniería y Ciencias Básicas\"\n}",
@@ -198,7 +591,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Actualiza la facultad', () => pm.response.to.have.status(201));"
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));"
                 ]
               }
             }
@@ -223,6 +616,16 @@
                 "programas",
                 "show"
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "event": [
@@ -231,7 +634,9 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test('Devuelve una lista', () => pm.expect(datos.data).to.be.an('array'));"
                 ]
               }
             }
@@ -255,6 +660,16 @@
               "path": [
                 "programas",
                 "create"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
               ]
             },
             "body": {
@@ -296,6 +711,16 @@
                 "info",
                 "{{programaId}}"
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "event": [
@@ -331,6 +756,16 @@
                 "{{programaId}}"
               ]
             },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "body": {
               "mode": "raw",
               "raw": "{\n    \"codigo\": \"ISI\",\n    \"nombre\": \"Ingeniería de Sistemas\",\n    \"nivel\": \"pregrado\",\n    \"facultad\": \"{{facultadId}}\"\n}",
@@ -357,9 +792,167 @@
     },
     {
       "name": "Estudiantes",
+      "description": "El registro público crea la cuenta y deja el token del estudiante. Las escrituras de administración usan adminToken.",
       "item": [
         {
-          "name": "Listar estudiantes",
+          "name": "Registro de estudiante (público)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/auth/register/estudiante",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "register",
+                "estudiante"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"tipoDocumento\": \"CC\",\n    \"numeroDocumento\": \"{{estudianteDocumento}}\",\n    \"nombres\": \"Sofía\",\n    \"apellidos\": \"Martínez Ríos\",\n    \"email\": \"{{estudianteEmail}}\",\n    \"telefono\": \"3005557788\",\n    \"password\": \"{{estudiantePassword}}\",\n    \"programa\": \"{{programaId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const s = Date.now();",
+                  "pm.collectionVariables.set(\"estudianteEmail\", `estudiante.${s}@ucp.edu.co`);",
+                  "pm.collectionVariables.set(\"estudianteDocumento\", String(s).slice(-10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const datos = pm.response.json();",
+                  "pm.test('Registra al estudiante', () => pm.response.to.have.status(201));",
+                  "pm.test('Devuelve un token', () => pm.expect(datos.data.token).to.be.a('string'));",
+                  "pm.collectionVariables.set('token', datos.data.token);",
+                  "pm.collectionVariables.set('estudianteToken', datos.data.token);",
+                  "pm.collectionVariables.set('estudianteId', datos.data.estudiante._id);",
+                  "pm.collectionVariables.set('estudianteUsuarioId', datos.data.usuario.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login estudiante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/auth/login",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{estudianteEmail}}\",\n    \"password\": \"{{estudiantePassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const datos = pm.response.json();",
+                  "pm.test('Inicia sesión como estudiante', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('token', datos.data.token);",
+                  "pm.collectionVariables.set('estudianteToken', datos.data.token);",
+                  "pm.test('El rol es estudiante', () => pm.expect(datos.data.usuario.rol).to.eql('estudiante'));",
+                  "pm.test('Tiene programa y facultad', () => {",
+                  "  pm.expect(datos.data.estudiante.programa.nombre).to.be.a('string');",
+                  "  pm.expect(datos.data.estudiante.programa.facultad.nombre).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mi perfil (estudiante)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/auth/me",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{estudianteToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test('El rol es estudiante', () => pm.expect(datos.data.usuario.rol).to.eql('estudiante'));",
+                  "pm.test('Devuelve el programa', () => pm.expect(datos.data.estudiante.programa).to.be.an('object'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar estudiantes (admin)",
           "request": {
             "method": "GET",
             "header": [],
@@ -372,6 +965,16 @@
                 "estudiantes",
                 "show"
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "event": [
@@ -380,14 +983,60 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test('Incluye la cuenta y el avatar del estudiante', () => {",
+                  "  const estudiante = datos.data[0];",
+                  "  pm.expect(estudiante).to.have.property('usuario');",
+                  "  if (estudiante.usuario) pm.expect(estudiante.usuario).to.have.property('avatar');",
+                  "});"
                 ]
               }
             }
           ]
         },
         {
-          "name": "Crear estudiante",
+          "name": "Listar solo mi registro (estudiante)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/estudiantes/show/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "estudiantes",
+                "show"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{estudianteToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test('Solo devuelve su propio registro', () => pm.expect(datos.data.length).to.eql(1));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear estudiante (admin)",
           "request": {
             "method": "POST",
             "header": [
@@ -406,9 +1055,19 @@
                 "create"
               ]
             },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"tipoDocumento\": \"CC\",\n    \"numeroDocumento\": \"1088123456\",\n    \"nombres\": \"Juan José\",\n    \"apellidos\": \"Velásquez Parra\",\n    \"email\": \"juan.velasquez@ucp.edu.co\",\n    \"telefono\": \"3001234567\"\n}",
+              "raw": "{\n    \"tipoDocumento\": \"CC\",\n    \"numeroDocumento\": \"{{estudianteAdminDocumento}}\",\n    \"nombres\": \"Juan José\",\n    \"apellidos\": \"Velásquez Parra\",\n    \"email\": \"{{estudianteAdminEmail}}\",\n    \"telefono\": \"3001234567\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -418,32 +1077,53 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const s = Date.now() + 1;",
+                  "pm.collectionVariables.set(\"estudianteAdminEmail\", `estudiante.admin.${s}@ucp.edu.co`);",
+                  "pm.collectionVariables.set(\"estudianteAdminDocumento\", String(s).slice(-10));"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
                   "const datos = pm.response.json();",
                   "pm.test('Crea el estudiante', () => pm.response.to.have.status(201));",
-                  "pm.collectionVariables.set('estudianteId', datos.data._id);"
+                  "pm.collectionVariables.set('estudianteAdminId', datos.data._id);"
                 ]
               }
             }
           ]
         },
         {
-          "name": "Consultar estudiante",
+          "name": "Consultar estudiante (admin)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/estudiantes/info/{{estudianteId}}",
+              "raw": "{{url}}/estudiantes/info/{{estudianteAdminId}}",
               "host": [
                 "{{url}}"
               ],
               "path": [
                 "estudiantes",
                 "info",
-                "{{estudianteId}}"
+                "{{estudianteAdminId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
               ]
             }
           },
@@ -460,7 +1140,7 @@
           ]
         },
         {
-          "name": "Actualizar estudiante",
+          "name": "Actualizar estudiante (admin)",
           "request": {
             "method": "PUT",
             "header": [
@@ -470,19 +1150,29 @@
               }
             ],
             "url": {
-              "raw": "{{url}}/estudiantes/update/{{estudianteId}}",
+              "raw": "{{url}}/estudiantes/update/{{estudianteAdminId}}",
               "host": [
                 "{{url}}"
               ],
               "path": [
                 "estudiantes",
                 "update",
-                "{{estudianteId}}"
+                "{{estudianteAdminId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"tipoDocumento\": \"CC\",\n    \"numeroDocumento\": \"1088123456\",\n    \"nombres\": \"Juan José\",\n    \"apellidos\": \"Velásquez Parra\",\n    \"email\": \"juan.velasquez@ucp.edu.co\",\n    \"telefono\": \"3007654321\"\n}",
+              "raw": "{\n    \"tipoDocumento\": \"CC\",\n    \"numeroDocumento\": \"{{estudianteAdminDocumento}}\",\n    \"nombres\": \"Juan José\",\n    \"apellidos\": \"Velásquez Parra\",\n    \"email\": \"{{estudianteAdminEmail}}\",\n    \"telefono\": \"3007654321\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -501,93 +1191,274 @@
               }
             }
           ]
+        },
+        {
+          "name": "Escritura denegada al estudiante (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/facultades/create/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "facultades",
+                "create"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{estudianteToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nombre\": \"Facultad no permitida\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar administradores denegado al estudiante (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/auth/admins",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "admins"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{estudianteToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "Eliminar estudiante",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{url}}/estudiantes/delete/{{estudianteId}}",
-          "host": [
-            "{{url}}"
-          ],
-          "path": [
-            "estudiantes",
-            "delete",
-            "{{estudianteId}}"
-          ]
-        }
-      },
-      "event": [
+      "name": "Limpieza",
+      "description": "Elimina los registros creados por la colección. Usa adminToken para las escrituras.",
+      "item": [
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Responde 200', () => pm.response.to.have.status(200));"
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "Eliminar programa",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{url}}/programas/delete/{{programaId}}",
-          "host": [
-            "{{url}}"
-          ],
-          "path": [
-            "programas",
-            "delete",
-            "{{programaId}}"
+          "name": "Eliminar estudiante (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/estudiantes/delete/{{estudianteAdminId}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "estudiantes",
+                "delete",
+                "{{estudianteAdminId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
           ]
-        }
-      },
-      "event": [
+        },
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Responde 200', () => pm.response.to.have.status(200));"
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "Eliminar facultad",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{url}}/facultades/delete/{{facultadId}}",
-          "host": [
-            "{{url}}"
-          ],
-          "path": [
-            "facultades",
-            "delete",
-            "{{facultadId}}"
+          "name": "Eliminar programa (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/programas/delete/{{programaId}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "programas",
+                "delete",
+                "{{programaId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
           ]
-        }
-      },
-      "event": [
+        },
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Responde 200', () => pm.response.to.have.status(200));"
-            ]
-          }
+          "name": "Eliminar facultad (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/facultades/delete/{{facultadId}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "facultades",
+                "delete",
+                "{{facultadId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Restaurar foto de perfil",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/auth/me/avatar",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "me",
+                "avatar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"avatar\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "const datos = pm.response.json();",
+                  "pm.test('Quita la foto de perfil', () => pm.expect(datos.data.usuario.avatar).to.eql(null));"
+                ]
+              }
+            }
+          ]
         }
       ]
     }

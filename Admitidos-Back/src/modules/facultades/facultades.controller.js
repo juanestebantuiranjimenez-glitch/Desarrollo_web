@@ -1,9 +1,29 @@
 import mongoose from "mongoose";
 
+import * as EstudiantesService from "../estudiantes/estudiantes.service.js";
 import * as FacultadesService from "./facultades.service.js";
+
+async function obtenerFacultadIdDelEstudiante(usuarioId) {
+    const estudiante = await EstudiantesService.obtenerEstudiantePorUsuario(usuarioId);
+    return estudiante?.programa?.facultad?._id ?? null;
+}
 
 export async function listarFacultades(req, res) {
     try {
+        if (req.usuario?.rol === "estudiante") {
+            const facultadId = await obtenerFacultadIdDelEstudiante(req.usuario.id);
+            const facultad = facultadId
+                ? await FacultadesService.obtenerFacultadPorId(facultadId)
+                : null;
+
+            return res.json({
+                statusCode: 200,
+                success: true,
+                message: "Facultades listadas correctamente",
+                data: facultad ? [facultad] : []
+            });
+        }
+
         const facultades = await FacultadesService.listarFacultades();
         res.json({
             statusCode: 200,
@@ -31,6 +51,18 @@ export async function obtenerFacultadPorId(req, res) {
                 success: false,
                 message: "ID de facultad inválido"
             });
+        }
+
+        if (req.usuario?.rol === "estudiante") {
+            const facultadId = await obtenerFacultadIdDelEstudiante(req.usuario.id);
+
+            if (!facultadId || facultadId.toString() !== id) {
+                return res.status(403).json({
+                    statusCode: 403,
+                    success: false,
+                    message: "No tienes acceso a esta facultad"
+                });
+            }
         }
 
         const facultad = await FacultadesService.obtenerFacultadPorId(id);

@@ -38,6 +38,17 @@ function validarDatosEstudiante({ tipoDocumento, numeroDocumento, nombres, apell
 
 export async function listarEstudiantes(req, res) {
     try {
+        if (req.usuario?.rol === "estudiante") {
+            const propio = await EstudiantesService.obtenerEstudiantePorUsuario(req.usuario.id);
+
+            return res.json({
+                statusCode: 200,
+                success: true,
+                message: "Estudiantes listados correctamente",
+                data: propio ? [propio] : []
+            });
+        }
+
         const estudiantes = await EstudiantesService.listarEstudiantes();
         res.json({
             statusCode: 200,
@@ -74,6 +85,18 @@ export async function obtenerEstudiantePorId(req, res) {
                 success: false,
                 message: "Estudiante no encontrado"
             });
+        }
+
+        if (req.usuario?.rol === "estudiante") {
+            const propietarioId = estudiante.usuario?._id ?? estudiante.usuario;
+
+            if (propietarioId?.toString() !== req.usuario.id) {
+                return res.status(403).json({
+                    statusCode: 403,
+                    success: false,
+                    message: "No tienes acceso a este estudiante"
+                });
+            }
         }
 
         res.json({

@@ -39,6 +39,14 @@ const estudianteSchema = new mongoose.Schema(
             type: String,
             trim: true,
             maxlength: 20
+        },
+        programa: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Programa"
+        },
+        usuario: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Usuario"
         }
     },
     {

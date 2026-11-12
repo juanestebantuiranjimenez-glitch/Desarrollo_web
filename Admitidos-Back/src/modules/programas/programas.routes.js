@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import { autenticar, soloAdmin } from "../../middleware/auth.middleware.js";
 import {
     listarProgramas,
     obtenerProgramaPorId,
@@ -10,10 +11,10 @@ import {
 
 const router = Router();
 
-router.get("/show/", listarProgramas);
-router.get("/info/:id", obtenerProgramaPorId);
-router.post("/create/", crearPrograma);
-router.put("/update/:id", actualizarPrograma);
-router.delete("/delete/:id", eliminarPrograma);
+router.get("/show/", autenticar, listarProgramas);
+router.get("/info/:id", autenticar, obtenerProgramaPorId);
+router.post("/create/", autenticar, soloAdmin, crearPrograma);
+router.put("/update/:id", autenticar, soloAdmin, actualizarPrograma);
+router.delete("/delete/:id", autenticar, soloAdmin, eliminarPrograma);
 
 export default router;
