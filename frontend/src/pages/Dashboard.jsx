@@ -21,6 +21,7 @@ import SoftAurora from '../components/reactbits/SoftAurora.jsx'
 import Avatar from '../components/ui/Avatar.jsx'
 import EmptyState from '../components/ui/EmptyState.jsx'
 import ErrorBanner from '../components/ui/ErrorBanner.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 import { formatDate, pluralize } from '../utils/format.js'
 
 const INITIAL_STATE = {
@@ -32,6 +33,7 @@ const INITIAL_STATE = {
 }
 
 export default function Dashboard() {
+  const { isDark } = useTheme()
   const [data, setData] = useState(INITIAL_STATE)
 
   const cargar = useCallback(async () => {
@@ -95,13 +97,13 @@ export default function Dashboard() {
       <section className="hero">
         <div className="hero__aurora" aria-hidden="true">
           <SoftAurora
-            lightMode
-            spectrum={0}
-            color1="#f6e7ee"
-            color2="#e3b7c9"
+            spectrum={0.2}
+            color1={isDark ? '#2a0f26' : '#fdf8f0'}
+            color2={isDark ? '#9b2f5c' : '#b54872'}
+            lightMode={!isDark}
             speed={0.35}
             scale={1.35}
-            brightness={1.18}
+            brightness={0.95}
             opacity={0.9}
             enableMouseInteraction
             mouseInfluence={0.15}
@@ -133,7 +135,11 @@ export default function Dashboard() {
             />
             <span className="hero__title-accent">
               <GradientText
-                colors={['#7d2449', '#a4771f', '#9b2f5c', '#7d2449']}
+                colors={
+                  isDark
+                    ? ['#f2d59a', '#e6a8c4', '#d9ad55', '#f2d59a']
+                    : ['#8a5f14', '#9b2f5c', '#c9942f', '#8a5f14']
+                }
                 animationSpeed={7}
                 variant="flow"
                 glow={0.14}
@@ -162,7 +168,7 @@ export default function Dashboard() {
 
       {data.error ? <ErrorBanner error={data.error} onRetry={cargar} /> : null}
 
-      <section className="stats-grid" aria-label="Indicadores generales">
+      <section className="stats-grid stagger" aria-label="Indicadores generales">
         <StatCard
           icon={Building2}
           tone="blue"
@@ -197,7 +203,7 @@ export default function Dashboard() {
         />
       </section>
 
-      <section className="dashboard-grid">
+      <section className="dashboard-grid stagger">
         <article className="panel">
           <div className="panel__header">
             <div>
@@ -283,7 +289,7 @@ export default function Dashboard() {
                 }
               />
             ) : (
-              <ul className="faculty-list">
+              <ul className="faculty-list stagger">
                 {facultadesResumen.slice(0, 5).map((facultad) => (
                   <li className="faculty-item" key={facultad._id}>
                     <span className="faculty-item__mark" aria-hidden="true">
@@ -312,7 +318,7 @@ export default function Dashboard() {
         </article>
       </section>
 
-      <section className="dashboard-grid">
+      <section className="dashboard-grid stagger">
         <article className="panel">
           <div className="panel__header">
             <div>
@@ -353,7 +359,7 @@ export default function Dashboard() {
                       <th>Registro</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="stagger-rows">
                     {estudiantesRecientes.map((estudiante) => (
                       <tr key={estudiante._id}>
                         <td data-label="Estudiante">
@@ -401,7 +407,7 @@ export default function Dashboard() {
             </span>
           </div>
           <div className="panel__body">
-            <div className="quick-grid">
+            <div className="quick-grid stagger">
               <Link to="/estudiantes?nuevo=1" className="quick-action">
                 <span className="quick-action__icon" aria-hidden="true">
                   <UserPlus />

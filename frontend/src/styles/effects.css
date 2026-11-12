@@ -1,0 +1,282 @@
+/* ============================================================
+   Efectos de interfaz: tooltips, animaciones, ordenamiento
+   y skeletons de tabla
+   ============================================================ */
+
+/* ---------- Tooltips ---------- */
+
+.app-tooltip {
+  position: fixed;
+  z-index: 120;
+  max-width: 240px;
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: #2a0f26;
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.8);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #fbf0f4;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: tooltip-in 130ms ease both;
+}
+
+.app-tooltip--top {
+  transform: translate(-50%, -100%);
+}
+
+.app-tooltip--bottom {
+  transform: translate(-50%, 0);
+}
+
+.app-tooltip--right {
+  transform: translate(0, -50%);
+}
+
+.app-tooltip--left {
+  transform: translate(-100%, -50%);
+}
+
+.app-tooltip::after {
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: #2a0f26;
+  transform: rotate(45deg);
+}
+
+.app-tooltip--top::after {
+  bottom: -4px;
+  left: 50%;
+  margin-left: -3.5px;
+}
+
+.app-tooltip--bottom::after {
+  top: -4px;
+  left: 50%;
+  margin-left: -3.5px;
+}
+
+.app-tooltip--right::after {
+  left: -3.5px;
+  top: 50%;
+  margin-top: -3.5px;
+}
+
+.app-tooltip--left::after {
+  right: -3.5px;
+  top: 50%;
+  margin-top: -3.5px;
+}
+
+/* ---------- Aparición escalonada ---------- */
+
+.stagger > *,
+.stagger-rows > tr {
+  animation: rise-in 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stagger > *:nth-child(1),
+.stagger-rows > tr:nth-child(1) {
+  animation-delay: 20ms;
+}
+
+.stagger > *:nth-child(2),
+.stagger-rows > tr:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.stagger > *:nth-child(3),
+.stagger-rows > tr:nth-child(3) {
+  animation-delay: 100ms;
+}
+
+.stagger > *:nth-child(4),
+.stagger-rows > tr:nth-child(4) {
+  animation-delay: 140ms;
+}
+
+.stagger > *:nth-child(5),
+.stagger-rows > tr:nth-child(5) {
+  animation-delay: 180ms;
+}
+
+.stagger > *:nth-child(6),
+.stagger-rows > tr:nth-child(6) {
+  animation-delay: 220ms;
+}
+
+.stagger > *:nth-child(7),
+.stagger-rows > tr:nth-child(7) {
+  animation-delay: 260ms;
+}
+
+.stagger > *:nth-child(8),
+.stagger-rows > tr:nth-child(8) {
+  animation-delay: 300ms;
+}
+
+.stagger > *:nth-child(9),
+.stagger-rows > tr:nth-child(9) {
+  animation-delay: 340ms;
+}
+
+.stagger > *:nth-child(10),
+.stagger-rows > tr:nth-child(10) {
+  animation-delay: 380ms;
+}
+
+.stagger > *:nth-child(n + 11),
+.stagger-rows > tr:nth-child(n + 11) {
+  animation-delay: 420ms;
+}
+
+/* ---------- Cabecera de tabla fija ---------- */
+
+@media (min-width: 901px) {
+  .table-wrap {
+    overflow: clip;
+  }
+
+  .data-table th {
+    position: sticky;
+    top: 72px;
+    z-index: 5;
+    background: var(--surface-2);
+  }
+
+  .data-table th:first-child {
+    border-top-left-radius: var(--radius-lg);
+  }
+
+  .data-table th:last-child {
+    border-top-right-radius: var(--radius-lg);
+  }
+}
+
+/* ---------- Ordenamiento por columnas ---------- */
+
+.data-table th .th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: color var(--transition);
+}
+
+.data-table th .th-sort svg {
+  width: 13px;
+  height: 13px;
+  opacity: 0.5;
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.data-table th .th-sort:hover,
+.data-table th .th-sort.is-active {
+  color: var(--blue-700);
+}
+
+.data-table th .th-sort:hover svg,
+.data-table th .th-sort.is-active svg {
+  opacity: 1;
+}
+
+.data-table th .th-sort.is-active svg {
+  color: var(--gold-500);
+}
+
+/* ---------- Skeletons de tabla ---------- */
+
+.table-skeleton {
+  pointer-events: none;
+}
+
+.table-skeleton .data-table tbody tr:hover {
+  background: transparent;
+}
+
+.skeleton--cell {
+  display: block;
+  height: 12px;
+  max-width: 180px;
+  border-radius: 6px;
+}
+
+.table-skeleton .data-table td {
+  border-bottom-color: var(--line);
+}
+
+.table-skeleton .data-table td:first-child .skeleton--cell {
+  height: 16px;
+}
+
+/* ---------- Selector de tema ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--muted);
+  transition:
+    background var(--transition),
+    color var(--transition),
+    border-color var(--transition),
+    transform var(--transition);
+}
+
+.theme-toggle:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-2);
+  color: var(--navy-800);
+  transform: translateY(-1px);
+}
+
+.theme-toggle svg {
+  width: 17px;
+  height: 17px;
+}
+
+.theme-toggle--floating {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 60;
+  box-shadow: var(--shadow-sm);
+}
+
+@keyframes tooltip-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

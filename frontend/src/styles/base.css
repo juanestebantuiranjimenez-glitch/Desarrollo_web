@@ -3,6 +3,8 @@
    ============================================================ */
 
 :root {
+  color-scheme: light;
+
   --navy-900: #2a0f26;
   --navy-800: #3b1533;
   --navy-700: #522044;
@@ -46,6 +48,7 @@
   --shadow-lg: 0 28px 70px -30px rgba(59, 21, 51, 0.35);
 
   --sidebar-w: 268px;
+  --sidebar-collapsed-w: 84px;
   --transition: 180ms ease;
 }
 
@@ -127,6 +130,11 @@ ol {
 ::selection {
   background: var(--blue-100);
   color: var(--navy-800);
+}
+
+[data-theme='dark'] ::selection {
+  background: var(--blue-600);
+  color: #fff;
 }
 
 :focus-visible {

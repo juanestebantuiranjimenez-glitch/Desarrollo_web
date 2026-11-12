@@ -7,11 +7,14 @@ import BlurText from '../components/reactbits/BlurText.jsx'
 import GradientText from '../components/reactbits/GradientText.jsx'
 import SoftAurora from '../components/reactbits/SoftAurora.jsx'
 import Field from '../components/ui/Field.jsx'
+import ThemeToggle from '../components/ui/ThemeToggle.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 import { getErrorMessage } from '../utils/format.js'
 
 export default function Login() {
   const { iniciarSesion, sesionExpirada } = useAuth()
+  const { isDark } = useTheme()
   const navigate = useNavigate()
 
   const [form, setForm] = useState({ email: '', password: '' })
@@ -64,16 +67,18 @@ export default function Login() {
 
   return (
     <div className="auth-page">
+      <ThemeToggle floating />
+
       <aside className="auth-aside">
         <div className="auth-aside__aurora" aria-hidden="true">
           <SoftAurora
-            lightMode
-            spectrum={0}
-            color1="#f2d9e3"
-            color2="#e3b7c9"
+            spectrum={0.2}
+            color1={isDark ? '#25101f' : '#f9efe6'}
+            color2={isDark ? '#a4771f' : '#c9942f'}
+            lightMode={!isDark}
             speed={0.4}
             scale={1.3}
-            brightness={1.15}
+            brightness={0.92}
             opacity={0.9}
             enableMouseInteraction
             mouseInfluence={0.18}
@@ -105,7 +110,11 @@ export default function Login() {
             />
             <span className="auth-aside__title-accent">
               <GradientText
-                colors={['#7d2449', '#a4771f', '#9b2f5c', '#7d2449']}
+                colors={
+                  isDark
+                    ? ['#f2d59a', '#e6a8c4', '#d9ad55', '#f2d59a']
+                    : ['#8a5f14', '#9b2f5c', '#c9942f', '#8a5f14']
+                }
                 animationSpeed={7}
                 variant="flow"
                 glow={0.14}

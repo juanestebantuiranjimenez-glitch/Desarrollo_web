@@ -6,9 +6,9 @@ import './SpotlightCard.css';
 
 const THEMES = {
   dark: {
-    surface: '#111111',
-    border: 'rgba(255, 255, 255, 0.08)',
-    shadow: '0 24px 48px -24px rgba(0, 0, 0, 0.6)',
+    surface: 'var(--surface, #111111)',
+    border: 'var(--line-strong, rgba(255, 255, 255, 0.08))',
+    shadow: 'var(--shadow-sm, 0 24px 48px -24px rgba(0, 0, 0, 0.6))',
     light: '#ffffff',
     fill: 1,
     edge: 1

@@ -8,11 +8,13 @@ import ConfirmDialog from '../components/ui/ConfirmDialog.jsx'
 import EmptyState from '../components/ui/EmptyState.jsx'
 import ErrorBanner from '../components/ui/ErrorBanner.jsx'
 import Field from '../components/ui/Field.jsx'
-import Loader from '../components/ui/Loader.jsx'
+import TableSkeleton from '../components/ui/TableSkeleton.jsx'
 import Modal from '../components/ui/Modal.jsx'
 import PageHeader from '../components/ui/PageHeader.jsx'
+import SortableTh from '../components/ui/SortableTh.jsx'
 import { useToast } from '../context/ToastContext.jsx'
 import { useApiList } from '../hooks/useApiList.js'
+import useSortable from '../hooks/useSortable.js'
 import { formatDate, getErrorMessage, NIVELES, nivelInfo, pluralize } from '../utils/format.js'
 
 const EMPTY_FORM = { codigo: '', nombre: '', nivel: 'pregrado', facultad: '' }
@@ -78,6 +80,20 @@ export default function Programas() {
       return matchSearch && matchNivel && matchFacultad
     })
   }, [programas, search, nivelFilter, facultadFilter])
+
+  const getSortValue = useMemo(
+    () => (programa, key) => {
+      if (key === 'codigo') return programa.codigo
+      if (key === 'nombre') return programa.nombre
+      if (key === 'nivel') return nivelInfo(programa.nivel).label
+      if (key === 'facultad') return programa.facultad?.nombre ?? ''
+      if (key === 'registro') return new Date(programa.createdAt ?? 0).getTime()
+      return ''
+    },
+    [],
+  )
+
+  const { sorted: programasOrdenados, sort, toggleSort } = useSortable(filtrados, getSortValue)
 
   const resumen = useMemo(
     () => ({
@@ -304,7 +320,7 @@ export default function Programas() {
       </div>
 
       {loading ? (
-        <Loader text="Cargando programas…" />
+        <TableSkeleton labels={['Código', 'Programa', 'Nivel', 'Facultad', 'Registro', '']} rows={5} />
       ) : filtrados.length === 0 ? (
         <div className="panel">
           <EmptyState
@@ -339,16 +355,16 @@ export default function Programas() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Código</th>
-                <th>Programa</th>
-                <th>Nivel</th>
-                <th>Facultad</th>
-                <th>Registro</th>
+                <SortableTh label="Código" sortKey="codigo" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Programa" sortKey="nombre" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Nivel" sortKey="nivel" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Facultad" sortKey="facultad" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Registro" sortKey="registro" sort={sort} onSort={toggleSort} />
                 <th aria-label="Acciones" />
               </tr>
             </thead>
-            <tbody>
-              {filtrados.map((programa) => {
+            <tbody className="stagger-rows">
+              {programasOrdenados.map((programa) => {
                 const nivel = nivelInfo(programa.nivel)
                 const facultadNombre = programa.facultad?.nombre ?? 'Sin facultad'
 
@@ -378,7 +394,8 @@ export default function Programas() {
                           className="icon-btn"
                           onClick={() => abrirEditar(programa)}
                           aria-label={`Editar ${programa.nombre}`}
-                          title="Editar"
+                          data-tooltip="Editar"
+                          data-tooltip-side="top"
                         >
                           <Pencil />
                         </button>
@@ -387,7 +404,8 @@ export default function Programas() {
                           className="icon-btn icon-btn--danger"
                           onClick={() => setDeleteTarget(programa)}
                           aria-label={`Eliminar ${programa.nombre}`}
-                          title="Eliminar"
+                          data-tooltip="Eliminar"
+                          data-tooltip-side="top"
                         >
                           <Trash2 />
                         </button>

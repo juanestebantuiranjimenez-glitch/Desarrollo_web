@@ -1,0 +1,332 @@
+/* ============================================================
+   Tema oscuro berenjena
+   Se activa con data-theme="dark" en <html>.
+   ============================================================ */
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --navy-900: #fdf8fb;
+  --navy-800: #f6e9ef;
+  --navy-700: #ecd6e1;
+  --blue-700: #e6a8c4;
+  --blue-600: #d97ba5;
+  --blue-500: #c9558a;
+  --blue-100: #4a2338;
+  --blue-50: #341a2b;
+  --teal-600: #e0b466;
+  --teal-100: #3f3016;
+  --gold-500: #e2b969;
+  --gold-100: #3a2a12;
+  --bg: #140710;
+  --surface: #22101d;
+  --surface-2: #2a1524;
+  --surface-3: #341b2c;
+  --text: #f0e2e9;
+  --muted: #c6aab8;
+  --muted-2: #ac8f9f;
+  --line: #3a2033;
+  --line-strong: #4e2c44;
+  --danger: #f08d8d;
+  --danger-bg: #3b1721;
+  --success: #e9d08c;
+  --success-bg: #302712;
+  --warning: #e5b072;
+  --warning-bg: #3a2a15;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.32);
+  --shadow-md: 0 16px 40px -18px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 28px 70px -30px rgba(0, 0, 0, 0.72);
+
+  * {
+    scrollbar-color: #4e2c44 transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: #4e2c44;
+  }
+
+  .app-shell {
+    background: var(--bg);
+  }
+
+  .app-ambient__orb {
+    mix-blend-mode: screen;
+    opacity: 0.22;
+  }
+
+  .topbar {
+    border-bottom-color: rgba(78, 44, 68, 0.7);
+    background: rgba(20, 7, 16, 0.78);
+  }
+
+  .sidebar {
+    border-right: 1px solid rgba(78, 44, 68, 0.55);
+  }
+
+  /* ---------- Héroes con aurora ---------- */
+
+  .hero,
+  .student-hero {
+    border-color: var(--line);
+    background:
+      radial-gradient(circle at 84% 18%, rgba(217, 173, 85, 0.18), transparent 42%),
+      radial-gradient(circle at 6% 4%, rgba(181, 72, 114, 0.26), transparent 46%),
+      linear-gradient(120deg, #2a1024 0%, #22101d 55%, #2f1725 100%);
+  }
+
+  .hero__overlay,
+  .student-hero__overlay {
+    background:
+      linear-gradient(
+        100deg,
+        rgba(20, 7, 16, 0.95) 0%,
+        rgba(20, 7, 16, 0.78) 45%,
+        rgba(20, 7, 16, 0.12) 85%
+      ),
+      radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.08), transparent 34%);
+  }
+
+  .hero__eyebrow {
+    border-color: rgba(230, 168, 196, 0.28);
+    background: rgba(34, 16, 29, 0.72);
+    color: var(--blue-700);
+  }
+
+  .student-hero__badges .badge {
+    background: rgba(34, 16, 29, 0.8);
+  }
+
+  .student-hero__identity {
+    border-color: var(--line-strong);
+    background: rgba(34, 16, 29, 0.78);
+  }
+
+  /* ---------- Autenticación ---------- */
+
+  .auth-main {
+    background:
+      radial-gradient(circle at 72% 18%, rgba(181, 72, 114, 0.1), transparent 46%),
+      radial-gradient(circle at 12% 88%, rgba(201, 148, 47, 0.07), transparent 42%),
+      var(--bg);
+  }
+
+  .auth-aside {
+    border-color: var(--line);
+    background:
+      radial-gradient(circle at 82% 8%, rgba(217, 173, 85, 0.16), transparent 40%),
+      radial-gradient(circle at 8% 92%, rgba(181, 72, 114, 0.2), transparent 45%),
+      linear-gradient(150deg, #25101f 0%, #170812 48%, #22101b 100%);
+  }
+
+  .auth-aside__overlay {
+    background:
+      linear-gradient(
+        160deg,
+        rgba(20, 7, 16, 0.9) 0%,
+        rgba(20, 7, 16, 0.68) 46%,
+        rgba(20, 7, 16, 0.2) 100%
+      ),
+      radial-gradient(circle at 82% 12%, rgba(255, 255, 255, 0.08), transparent 38%);
+  }
+
+  .auth-points li {
+    border-color: var(--line);
+    background: rgba(34, 16, 29, 0.7);
+  }
+
+  .auth-card {
+    border-color: var(--line-strong);
+    background: rgba(34, 16, 29, 0.88);
+  }
+
+  .auth-brand-logo {
+    filter: drop-shadow(0 20px 32px rgba(0, 0, 0, 0.5));
+  }
+
+  /* ---------- Botones, iconos y formularios ---------- */
+
+  .btn--secondary:hover:not(:disabled) {
+    border-color: #6b3d5b;
+    background: var(--surface-2);
+  }
+
+  .icon-btn--danger:hover {
+    border-color: #5a2430;
+    background: var(--danger-bg);
+    color: var(--danger);
+  }
+
+  .input::placeholder,
+  .textarea::placeholder {
+    color: #9d7f8e;
+  }
+
+  .input:hover,
+  .select:hover,
+  .textarea:hover {
+    border-color: #6b3d5b;
+  }
+
+  .input[aria-invalid='true'],
+  .select[aria-invalid='true'],
+  .textarea[aria-invalid='true'] {
+    border-color: #7d3a44;
+    background: rgba(178, 58, 58, 0.12);
+  }
+
+  .select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23c6aab8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+
+  .form-error {
+    border-color: #5a2430;
+    color: #ffb4b4;
+  }
+
+  /* ---------- Tablas ---------- */
+
+  .data-table td {
+    border-bottom-color: var(--line);
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--surface-2);
+  }
+
+  /* ---------- Avatares ---------- */
+
+  .avatar-photo {
+    border-color: rgba(230, 168, 196, 0.22);
+    background: linear-gradient(145deg, #3a1c2f, #4a2f1c);
+  }
+
+  .avatar-option__media {
+    background: linear-gradient(145deg, #3a1c2f, #4a2f1c);
+  }
+
+  .avatar-option__media.avatar-photo {
+    border-color: rgba(230, 168, 196, 0.22);
+  }
+
+  .student-hero__avatar.avatar-photo {
+    border-color: rgba(230, 168, 196, 0.22);
+    background: linear-gradient(145deg, #3a1c2f, #4a2f1c);
+  }
+
+  .student-hero__avatar-edit {
+    border-color: var(--surface);
+  }
+
+  /* ---------- Badges ---------- */
+
+  .badge--blue {
+    border-color: rgba(230, 168, 196, 0.3);
+  }
+
+  .badge--teal {
+    border-color: rgba(224, 180, 102, 0.28);
+  }
+
+  .badge--gold {
+    border-color: rgba(226, 185, 105, 0.3);
+    color: var(--gold-500);
+  }
+
+  .badge--danger {
+    border-color: #5a2430;
+  }
+
+  /* ---------- Modales y selector de avatar ---------- */
+
+  .modal {
+    border-color: var(--line-strong);
+    box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.75);
+  }
+
+  .modal-backdrop {
+    background: rgba(10, 3, 8, 0.68);
+  }
+
+  /* ---------- Mensajes, banners y esqueletos ---------- */
+
+  .banner--error {
+    border-color: #5a2430;
+    color: #ffb4b4;
+  }
+
+  .banner--warning {
+    border-color: rgba(229, 176, 114, 0.3);
+    color: var(--warning);
+  }
+
+  .banner--info {
+    border-color: rgba(230, 168, 196, 0.3);
+    color: var(--blue-700);
+  }
+
+  .skeleton {
+    background: #33202d;
+  }
+
+  .skeleton::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.07), transparent);
+  }
+
+  /* ---------- Dashboard y páginas de gestión ---------- */
+
+  .stat-card__icon--navy {
+    background: #3a2035;
+    color: var(--navy-700);
+  }
+
+  .faculty-item__mark {
+    background: linear-gradient(135deg, #4a2338, #5a2b40);
+    color: var(--blue-700);
+  }
+
+  .quick-action:hover {
+    border-color: var(--line-strong);
+  }
+
+  .program-code {
+    border-color: var(--line-strong);
+  }
+
+  .form-note {
+    border-color: rgba(230, 168, 196, 0.28);
+    background: var(--blue-50);
+    color: #f0cfe0;
+  }
+
+  .student-info-card__icon--teal {
+    background: var(--success-bg);
+  }
+
+  .student-info-card__icon--gold {
+    background: var(--gold-100);
+    color: var(--gold-500);
+  }
+
+  /* ---------- Responsive ---------- */
+
+  @media (max-width: 1100px) {
+    .auth-aside {
+      border-bottom-color: var(--line);
+    }
+  }
+
+  @media (max-width: 700px) {
+    .hero__overlay,
+    .student-hero__overlay {
+      background:
+        linear-gradient(
+          180deg,
+          rgba(20, 7, 16, 0.96) 0%,
+          rgba(20, 7, 16, 0.84) 55%,
+          rgba(20, 7, 16, 0.5) 100%
+        );
+    }
+  }
+}

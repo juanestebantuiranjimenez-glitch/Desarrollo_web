@@ -8,11 +8,13 @@ import ConfirmDialog from '../components/ui/ConfirmDialog.jsx'
 import EmptyState from '../components/ui/EmptyState.jsx'
 import ErrorBanner from '../components/ui/ErrorBanner.jsx'
 import Field from '../components/ui/Field.jsx'
-import Loader from '../components/ui/Loader.jsx'
+import TableSkeleton from '../components/ui/TableSkeleton.jsx'
 import Modal from '../components/ui/Modal.jsx'
 import PageHeader from '../components/ui/PageHeader.jsx'
+import SortableTh from '../components/ui/SortableTh.jsx'
 import { useToast } from '../context/ToastContext.jsx'
 import { useApiList } from '../hooks/useApiList.js'
+import useSortable from '../hooks/useSortable.js'
 import {
   formatDate,
   getErrorMessage,
@@ -81,6 +83,19 @@ export default function Estudiantes() {
       return matchSearch && matchTipo
     })
   }, [estudiantes, search, tipoFilter])
+
+  const getSortValue = useMemo(
+    () => (estudiante, key) => {
+      if (key === 'nombre') return `${estudiante.nombres} ${estudiante.apellidos}`
+      if (key === 'documento') return estudiante.numeroDocumento
+      if (key === 'telefono') return estudiante.telefono ?? ''
+      if (key === 'registro') return new Date(estudiante.createdAt ?? 0).getTime()
+      return ''
+    },
+    [],
+  )
+
+  const { sorted: estudiantesOrdenados, sort, toggleSort } = useSortable(filtrados, getSortValue)
 
   const resumen = useMemo(
     () =>
@@ -281,7 +296,7 @@ export default function Estudiantes() {
       </div>
 
       {loading ? (
-        <Loader text="Cargando estudiantes…" />
+        <TableSkeleton labels={['Estudiante', 'Documento', 'Teléfono', 'Registro', '']} rows={6} />
       ) : filtrados.length === 0 ? (
         <div className="panel">
           <EmptyState
@@ -311,15 +326,15 @@ export default function Estudiantes() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Estudiante</th>
-                <th>Documento</th>
-                <th>Teléfono</th>
-                <th>Registro</th>
+                <SortableTh label="Estudiante" sortKey="nombre" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Documento" sortKey="documento" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Teléfono" sortKey="telefono" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Registro" sortKey="registro" sort={sort} onSort={toggleSort} />
                 <th aria-label="Acciones" />
               </tr>
             </thead>
-            <tbody>
-              {filtrados.map((estudiante) => (
+            <tbody className="stagger-rows">
+              {estudiantesOrdenados.map((estudiante) => (
                 <tr key={estudiante._id}>
                   <td data-label="Estudiante">
                     <div className="cell-person">
@@ -362,7 +377,8 @@ export default function Estudiantes() {
                         className="icon-btn"
                         onClick={() => abrirEditar(estudiante)}
                         aria-label={`Editar ${estudiante.nombres} ${estudiante.apellidos}`}
-                        title="Editar"
+                        data-tooltip="Editar"
+                        data-tooltip-side="top"
                       >
                         <Pencil />
                       </button>
@@ -371,7 +387,8 @@ export default function Estudiantes() {
                         className="icon-btn icon-btn--danger"
                         onClick={() => setDeleteTarget(estudiante)}
                         aria-label={`Eliminar ${estudiante.nombres} ${estudiante.apellidos}`}
-                        title="Eliminar"
+                        data-tooltip="Eliminar"
+                        data-tooltip-side="top"
                       >
                         <Trash2 />
                       </button>

@@ -8,11 +8,13 @@ import ConfirmDialog from '../components/ui/ConfirmDialog.jsx'
 import EmptyState from '../components/ui/EmptyState.jsx'
 import ErrorBanner from '../components/ui/ErrorBanner.jsx'
 import Field from '../components/ui/Field.jsx'
-import Loader from '../components/ui/Loader.jsx'
+import TableSkeleton from '../components/ui/TableSkeleton.jsx'
 import Modal from '../components/ui/Modal.jsx'
 import PageHeader from '../components/ui/PageHeader.jsx'
+import SortableTh from '../components/ui/SortableTh.jsx'
 import { useToast } from '../context/ToastContext.jsx'
 import { useApiList } from '../hooks/useApiList.js'
+import useSortable from '../hooks/useSortable.js'
 import { formatDate, getErrorMessage, pluralize, shortId } from '../utils/format.js'
 
 const EMPTY_FORM = { nombre: '' }
@@ -66,6 +68,22 @@ export default function Facultades() {
         facultad.nombre.toLowerCase().includes(term) || facultad._id.toLowerCase().includes(term),
     )
   }, [facultades, search])
+
+  const getSortValue = useMemo(
+    () => (facultad, key) => {
+      if (key === 'nombre') return facultad.nombre
+      if (key === 'programas') return programasPorFacultad[facultad._id] ?? 0
+      if (key === 'registro') return new Date(facultad.createdAt ?? 0).getTime()
+      return ''
+    },
+    [programasPorFacultad],
+  )
+
+  const {
+    sorted: facultadesOrdenadas,
+    sort,
+    toggleSort,
+  } = useSortable(filtradas, getSortValue)
 
   const abrirEditar = (facultad) => {
     setEditing(facultad)
@@ -191,7 +209,7 @@ export default function Facultades() {
       </div>
 
       {loading ? (
-        <Loader text="Cargando facultades…" />
+        <TableSkeleton labels={['Facultad', 'Programas', 'Registro', '']} rows={5} />
       ) : filtradas.length === 0 ? (
         <div className="panel">
           <EmptyState
@@ -221,14 +239,14 @@ export default function Facultades() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Facultad</th>
-                <th>Programas</th>
-                <th>Registro</th>
+                <SortableTh label="Facultad" sortKey="nombre" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Programas" sortKey="programas" sort={sort} onSort={toggleSort} />
+                <SortableTh label="Registro" sortKey="registro" sort={sort} onSort={toggleSort} />
                 <th aria-label="Acciones" />
               </tr>
             </thead>
-            <tbody>
-              {filtradas.map((facultad) => {
+            <tbody className="stagger-rows">
+              {facultadesOrdenadas.map((facultad) => {
                 const count = programasPorFacultad[facultad._id] ?? 0
 
                 return (
@@ -259,7 +277,8 @@ export default function Facultades() {
                           className="icon-btn"
                           onClick={() => abrirEditar(facultad)}
                           aria-label={`Editar ${facultad.nombre}`}
-                          title="Editar"
+                          data-tooltip="Editar"
+                          data-tooltip-side="top"
                         >
                           <Pencil />
                         </button>
@@ -268,7 +287,8 @@ export default function Facultades() {
                           className="icon-btn icon-btn--danger"
                           onClick={() => pedirEliminar(facultad)}
                           aria-label={`Eliminar ${facultad.nombre}`}
-                          title={count > 0 ? 'Tiene programas asociados' : 'Eliminar'}
+                          data-tooltip={count > 0 ? 'Tiene programas asociados' : 'Eliminar'}
+                          data-tooltip-side="top"
                         >
                           <Trash2 />
                         </button>
