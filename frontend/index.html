@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png" />
@@ -9,7 +9,19 @@
       name="description"
       content="Sistema de gestión académica para facultades, programas y estudiantes de Monsters University."
     />
-    <meta name="theme-color" content="#3b1533" />
+    <meta name="theme-color" content="#140710" />
+    <script>
+      try {
+        const guardado = localStorage.getItem('admitidos.theme')
+        const tema = guardado === 'light' || guardado === 'dark' ? guardado : 'dark'
+        document.documentElement.dataset.theme = tema
+        document.documentElement.style.colorScheme = tema
+        const meta = document.querySelector('meta[name="theme-color"]')
+        if (meta) meta.setAttribute('content', tema === 'dark' ? '#140710' : '#f7f0e6')
+      } catch {
+        document.documentElement.dataset.theme = 'dark'
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

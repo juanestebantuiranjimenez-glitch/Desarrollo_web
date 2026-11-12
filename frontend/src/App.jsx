@@ -3,7 +3,9 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import RutaProtegida, { SoloPublico } from './components/auth/RutaProtegida.jsx'
 import AppLayout from './components/layout/AppLayout.jsx'
 import ClickSpark from './components/reactbits/ClickSpark.jsx'
+import TooltipLayer from './components/ui/TooltipLayer.jsx'
 import { AuthProvider, useAuth } from './context/AuthContext.jsx'
+import { ThemeProvider, useTheme } from './context/ThemeContext.jsx'
 import { ToastProvider } from './context/ToastContext.jsx'
 import Administradores from './pages/Administradores.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -22,10 +24,24 @@ function Inicio() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <ClickSpark
-          sparkColor="#7d2449"
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <AppContenido />
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  )
+}
+
+function AppContenido() {
+  const { isDark } = useTheme()
+
+  return (
+    <>
+      <TooltipLayer />
+      <ClickSpark
+          sparkColor={isDark ? '#d9ad55' : '#c9942f'}
           sparkSize={11}
           sparkRadius={26}
           sparkCount={8}
@@ -106,7 +122,6 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </ClickSpark>
-      </ToastProvider>
-    </AuthProvider>
+    </>
   )
 }

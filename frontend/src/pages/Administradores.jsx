@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AlertCircle, CalendarDays, Eye, EyeOff, Mail, Plus, ShieldCheck } from 'lucide-react'
 
 import { authApi } from '../api/client.js'
@@ -6,11 +6,13 @@ import Avatar from '../components/ui/Avatar.jsx'
 import Field from '../components/ui/Field.jsx'
 import EmptyState from '../components/ui/EmptyState.jsx'
 import ErrorBanner from '../components/ui/ErrorBanner.jsx'
-import Loader from '../components/ui/Loader.jsx'
+import TableSkeleton from '../components/ui/TableSkeleton.jsx'
 import Modal from '../components/ui/Modal.jsx'
 import PageHeader from '../components/ui/PageHeader.jsx'
+import SortableTh from '../components/ui/SortableTh.jsx'
 import { useToast } from '../context/ToastContext.jsx'
 import { useApiList } from '../hooks/useApiList.js'
+import useSortable from '../hooks/useSortable.js'
 import { formatDate, getErrorMessage, pluralize } from '../utils/format.js'
 
 const EMPTY_FORM = {
@@ -32,6 +34,21 @@ export default function Administradores() {
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
   const [verPassword, setVerPassword] = useState(false)
+
+  const getSortValue = useMemo(
+    () => (admin, key) => {
+      if (key === 'nombre') return admin.nombre
+      if (key === 'rol') return admin.rol ?? 'administrador'
+      if (key === 'registro') return new Date(admin.createdAt ?? 0).getTime()
+      return ''
+    },
+    [],
+  )
+
+  const { sorted: administradoresOrdenados, sort, toggleSort } = useSortable(
+    administradores,
+    getSortValue,
+  )
 
   const abrirCrear = () => {
     setForm(EMPTY_FORM)
@@ -129,7 +146,7 @@ export default function Administradores() {
       {error ? <ErrorBanner error={error} onRetry={recargar} /> : null}
 
       {loading ? (
-        <Loader text="Cargando administradores…" />
+        <TableSkeleton labels={['Administrador', 'Rol', 'Registro']} rows={4} />
       ) : administradores.length === 0 ? (
         <div className="panel">
           <EmptyState
@@ -156,13 +173,13 @@ export default function Administradores() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Administrador</th>
-                  <th>Rol</th>
-                  <th>Registro</th>
+                  <SortableTh label="Administrador" sortKey="nombre" sort={sort} onSort={toggleSort} />
+                  <SortableTh label="Rol" sortKey="rol" sort={sort} onSort={toggleSort} />
+                  <SortableTh label="Registro" sortKey="registro" sort={sort} onSort={toggleSort} />
                 </tr>
               </thead>
-              <tbody>
-                {administradores.map((admin) => (
+              <tbody className="stagger-rows">
+                {administradoresOrdenados.map((admin) => (
                   <tr key={admin._id}>
                     <td data-label="Administrador">
                       <div className="cell-person">

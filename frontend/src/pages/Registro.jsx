@@ -18,7 +18,9 @@ import GradientText from '../components/reactbits/GradientText.jsx'
 import SoftAurora from '../components/reactbits/SoftAurora.jsx'
 import Field from '../components/ui/Field.jsx'
 import Loader from '../components/ui/Loader.jsx'
+import ThemeToggle from '../components/ui/ThemeToggle.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 import { getErrorMessage, NIVELES, TIPOS_DOCUMENTO, tipoDocumentoLabel } from '../utils/format.js'
 
 const FORM_INICIAL = {
@@ -36,6 +38,7 @@ const FORM_INICIAL = {
 
 export default function Registro() {
   const { registrarEstudiante } = useAuth()
+  const { isDark } = useTheme()
   const navigate = useNavigate()
 
   const [programas, setProgramas] = useState([])
@@ -178,16 +181,18 @@ export default function Registro() {
 
   return (
     <div className="auth-page auth-page--registro">
+      <ThemeToggle floating />
+
       <aside className="auth-aside">
         <div className="auth-aside__aurora" aria-hidden="true">
           <SoftAurora
-            lightMode
-            spectrum={0}
-            color1="#f6e7ee"
-            color2="#e8c98f"
+            spectrum={0.2}
+            color1={isDark ? '#25101f' : '#f9efe6'}
+            color2={isDark ? '#9b2f5c' : '#b54872'}
+            lightMode={!isDark}
             speed={0.38}
             scale={1.3}
-            brightness={1.12}
+            brightness={0.92}
             opacity={0.9}
             enableMouseInteraction
             mouseInfluence={0.16}
@@ -219,7 +224,11 @@ export default function Registro() {
             />
             <span className="auth-aside__title-accent">
               <GradientText
-                colors={['#a4771f', '#7d2449', '#9b2f5c', '#a4771f']}
+                colors={
+                  isDark
+                    ? ['#f2d59a', '#e6a8c4', '#d9ad55', '#f2d59a']
+                    : ['#8a5f14', '#9b2f5c', '#c9942f', '#8a5f14']
+                }
                 animationSpeed={7}
                 variant="flow"
                 glow={0.14}

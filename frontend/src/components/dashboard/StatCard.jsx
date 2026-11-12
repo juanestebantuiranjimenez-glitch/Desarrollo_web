@@ -1,3 +1,5 @@
+import { useTheme } from '../../context/ThemeContext.jsx'
+import CountUp from '../ui/CountUp.jsx'
 import SpotlightCard from '../reactbits/SpotlightCard.jsx'
 
 const SPOTLIGHT_COLORS = {
@@ -8,9 +10,11 @@ const SPOTLIGHT_COLORS = {
 }
 
 export default function StatCard({ icon: Icon, tone = 'blue', label, value, hint, trend }) {
+  const { isDark } = useTheme()
+
   return (
     <SpotlightCard
-      theme="light"
+      theme={isDark ? 'dark' : 'light'}
       className="stat-card"
       spotlightColor={SPOTLIGHT_COLORS[tone]}
       spotlightSize={230}
@@ -24,7 +28,9 @@ export default function StatCard({ icon: Icon, tone = 'blue', label, value, hint
         </span>
         {trend ? <span className="stat-card__trend">{trend}</span> : null}
       </div>
-      <div className="stat-card__value">{value}</div>
+      <div className="stat-card__value">
+        {typeof value === 'number' ? <CountUp value={value} /> : value}
+      </div>
       <div className="stat-card__label">{label}</div>
       {hint ? <div className="stat-card__hint">{hint}</div> : null}
     </SpotlightCard>

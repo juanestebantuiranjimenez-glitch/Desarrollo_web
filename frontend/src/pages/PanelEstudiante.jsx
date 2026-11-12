@@ -23,6 +23,7 @@ import ErrorBanner from '../components/ui/ErrorBanner.jsx'
 import Loader from '../components/ui/Loader.jsx'
 import PageHeader from '../components/ui/PageHeader.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 import { useApiList } from '../hooks/useApiList.js'
 import {
   formatDate,
@@ -33,6 +34,7 @@ import {
 
 export default function PanelEstudiante() {
   const { usuario, estudiante } = useAuth()
+  const { isDark } = useTheme()
   const { items: programas, loading, error, recargar } = useApiList(programasApi.listar)
   const [pickerOpen, setPickerOpen] = useState(false)
 
@@ -69,13 +71,13 @@ export default function PanelEstudiante() {
       <section className="student-hero">
         <div className="student-hero__aurora" aria-hidden="true">
           <SoftAurora
-            lightMode
-            spectrum={0}
-            color1="#f6e7ee"
-            color2="#e8c98f"
+            spectrum={0.2}
+            color1={isDark ? '#2a0f26' : '#fdf8f0'}
+            color2={isDark ? '#b54872' : '#c9558a'}
+            lightMode={!isDark}
             speed={0.32}
             scale={1.4}
-            brightness={1.16}
+            brightness={0.95}
             opacity={0.9}
             enableMouseInteraction
             mouseInfluence={0.14}
@@ -123,7 +125,8 @@ export default function PanelEstudiante() {
             className="student-hero__avatar-btn"
             onClick={() => setPickerOpen(true)}
             aria-label="Cambiar foto de perfil"
-            title="Cambiar foto de perfil"
+            data-tooltip="Cambiar foto de perfil"
+            data-tooltip-side="top"
           >
             <Avatar
               avatar={usuario?.avatar}
@@ -151,9 +154,9 @@ export default function PanelEstudiante() {
 
       {error ? <ErrorBanner error={error} onRetry={recargar} /> : null}
 
-      <section className="student-info-grid" aria-label="Resumen de mi programa">
+      <section className="student-info-grid stagger" aria-label="Resumen de mi programa">
         <SpotlightCard
-          theme="light"
+          theme={isDark ? 'dark' : 'light'}
           className="student-info-card"
           spotlightColor="rgba(155, 47, 92, 0.2)"
           spotlightSize={220}
@@ -172,7 +175,7 @@ export default function PanelEstudiante() {
         </SpotlightCard>
 
         <SpotlightCard
-          theme="light"
+          theme={isDark ? 'dark' : 'light'}
           className="student-info-card"
           spotlightColor="rgba(164, 119, 31, 0.2)"
           spotlightSize={220}
@@ -191,7 +194,7 @@ export default function PanelEstudiante() {
         </SpotlightCard>
 
         <SpotlightCard
-          theme="light"
+          theme={isDark ? 'dark' : 'light'}
           className="student-info-card"
           spotlightColor="rgba(201, 148, 47, 0.2)"
           spotlightSize={220}
@@ -234,7 +237,7 @@ export default function PanelEstudiante() {
                 description="Tu facultad todavía no tiene programas registrados."
               />
             ) : (
-              <div className="program-grid">
+              <div className="program-grid stagger">
                 {programas.map((item) => {
                   const esMio = item._id === programa?._id
                   const infoNivel = nivelInfo(item.nivel)
@@ -242,7 +245,7 @@ export default function PanelEstudiante() {
                   return (
                     <SpotlightCard
                       key={item._id}
-                      theme="light"
+                      theme={isDark ? 'dark' : 'light'}
                       className={`program-tile ${esMio ? 'program-tile--mine' : ''}`}
                       spotlightColor="rgba(155, 47, 92, 0.18)"
                       spotlightSize={200}

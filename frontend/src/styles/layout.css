@@ -1,13 +1,87 @@
 /* ============================================================
-   Layout: sidebar, topbar y estructura general
+   Layout: fondo animado, sidebar, topbar y estructura general
    ============================================================ */
 
 .app-shell {
+  position: relative;
+  isolation: isolate;
   display: flex;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(155, 47, 92, 0.06), transparent 34%),
-    var(--bg);
+  background: var(--bg);
+}
+
+/* Resplandor suave que sigue al puntero sobre el fondo del panel. */
+.app-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    440px circle at var(--pointer-x, 72%) var(--pointer-y, 18%),
+    rgba(217, 173, 85, 0.16),
+    rgba(181, 72, 114, 0.09) 38%,
+    transparent 68%
+  );
+  opacity: 0.9;
+  pointer-events: none;
+  transition: background 120ms linear;
+}
+
+/* ---------- Fondo ambiental (ReactBits) ---------- */
+
+.app-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.app-ambient .soft-aurora {
+  position: absolute;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  filter: blur(1px) saturate(1.05);
+  opacity: 0.9;
+  animation: ambient-breathe 26s ease-in-out infinite alternate;
+}
+
+.app-ambient__orb {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(46px);
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  will-change: transform;
+}
+
+.app-ambient__orb--one {
+  top: -8%;
+  right: 6%;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(181, 72, 114, 0.34), transparent 68%);
+  animation: orb-float-one 24s ease-in-out infinite alternate;
+}
+
+.app-ambient__orb--two {
+  bottom: -12%;
+  left: 22%;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(217, 173, 85, 0.3), transparent 70%);
+  animation: orb-float-two 30s ease-in-out infinite alternate;
+}
+
+.app-ambient__orb--three {
+  top: 42%;
+  right: 34%;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(155, 47, 92, 0.22), transparent 70%);
+  animation: orb-float-three 20s ease-in-out infinite alternate;
 }
 
 /* ---------- Sidebar ---------- */
@@ -20,13 +94,84 @@
   width: var(--sidebar-w);
   flex-direction: column;
   padding: 24px 18px 20px;
+  overflow-x: hidden;
   overflow-y: auto;
   color: #efe3ea;
   background:
-    radial-gradient(circle at 15% 0%, rgba(181, 72, 114, 0.28), transparent 32%),
-    radial-gradient(circle at 90% 78%, rgba(164, 119, 31, 0.2), transparent 40%),
+    radial-gradient(circle at 15% 0%, rgba(181, 72, 114, 0.3), transparent 32%),
+    radial-gradient(circle at 90% 78%, rgba(164, 119, 31, 0.22), transparent 40%),
     linear-gradient(180deg, #3b1533 0%, #1e0a1b 100%);
   box-shadow: 18px 0 50px -35px rgba(36, 16, 31, 0.7);
+  transition:
+    width 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    padding 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 280ms ease;
+}
+
+/* Capa decorativa interna con haz de luz y chispas. */
+.sidebar__ambient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sidebar__beam {
+  position: absolute;
+  top: -30%;
+  left: -40%;
+  width: 74%;
+  height: 150%;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 246, 224, 0.14) 48%,
+    rgba(217, 173, 85, 0.22) 52%,
+    transparent 78%
+  );
+  transform: rotate(8deg);
+  animation: beam-drift 14s ease-in-out infinite;
+}
+
+.sidebar__spark {
+  position: absolute;
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #f3ddb0;
+  box-shadow: 0 0 12px 3px rgba(233, 195, 118, 0.55);
+  opacity: 0;
+}
+
+.sidebar__spark--one {
+  top: 26%;
+  left: 74%;
+  animation: spark-rise 9s ease-in-out infinite;
+}
+
+.sidebar__spark--two {
+  top: 58%;
+  left: 32%;
+  width: 3px;
+  height: 3px;
+  animation: spark-rise 12s ease-in-out 3s infinite;
+}
+
+.sidebar__spark--three {
+  top: 80%;
+  left: 86%;
+  width: 4px;
+  height: 4px;
+  animation: spark-rise 10s ease-in-out 6s infinite;
+}
+
+/* El contenido del sidebar debe quedar sobre la capa ambiental. */
+.sidebar > *:not(.sidebar__ambient) {
+  position: relative;
+  z-index: 1;
 }
 
 .sidebar__brand {
@@ -34,6 +179,7 @@
   align-items: center;
   gap: 12px;
   padding: 2px 8px 24px;
+  transition: padding 280ms ease;
 }
 
 .brand-mark {
@@ -43,6 +189,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
+  transition: width 280ms ease, height 280ms ease;
 }
 
 .brand-mark__img {
@@ -57,6 +204,8 @@
   min-width: 0;
   flex-direction: column;
   line-height: 1.2;
+  white-space: nowrap;
+  transition: opacity 200ms ease, width 240ms ease;
 }
 
 .brand-text strong {
@@ -75,6 +224,18 @@
   color: #b79aa7;
 }
 
+/* Botones del encabezado del sidebar. Se usa mayor especificidad para
+   vencer el display de .icon-btn definido en components.css. */
+.sidebar .sidebar__close,
+.sidebar .sidebar__collapse {
+  display: none;
+  margin-left: auto;
+}
+
+.sidebar .sidebar__collapse {
+  display: inline-flex;
+}
+
 .sidebar__nav {
   display: flex;
   flex: 1;
@@ -90,11 +251,14 @@
 
 .nav-group__label {
   padding: 0 12px 6px;
+  overflow: hidden;
   font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  white-space: nowrap;
   color: #8c6f7d;
+  transition: opacity 180ms ease;
 }
 
 .nav-link {
@@ -110,7 +274,8 @@
   transition:
     color var(--transition),
     background var(--transition),
-    transform var(--transition);
+    transform var(--transition),
+    padding 240ms ease;
 }
 
 .nav-link svg {
@@ -118,6 +283,12 @@
   height: 19px;
   flex-shrink: 0;
   opacity: 0.9;
+}
+
+.nav-link__label {
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity 160ms ease;
 }
 
 .nav-link:hover {
@@ -140,6 +311,7 @@
   height: 5px;
   border-radius: 50%;
   background: #d9ad55;
+  transition: opacity 160ms ease;
 }
 
 .sidebar__footer {
@@ -149,12 +321,90 @@
   margin-top: 28px;
 }
 
-.sidebar-card {
-  padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 16px;
+.sidebar-user {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 14px;
+  transition: padding 240ms ease, background 240ms ease;
+}
+
+.sidebar-user:hover {
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
+}
+
+.sidebar-user__avatar {
+  flex-shrink: 0;
+}
+
+.sidebar-user__info {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  line-height: 1.3;
+  transition: opacity 160ms ease;
+}
+
+.sidebar-user__info strong {
+  overflow: hidden;
+  font-size: 0.78rem;
+  color: #f4e8ef;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-user__info span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  color: #b394a1;
+}
+
+.sidebar-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #d5c1cb;
+  background: transparent;
+  transition:
+    color var(--transition),
+    background var(--transition),
+    border-color var(--transition),
+    padding 240ms ease;
+}
+
+.sidebar-logout svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.sidebar-logout:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+
+.sidebar-logout__label {
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity 160ms ease;
+}
+
+/* SpotlightCard dentro del sidebar: recupera el diseño compacto. */
+.sidebar-card.spotlight-card {
+  padding: 14px;
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: none;
 }
 
 .sidebar-card__label {
@@ -184,16 +434,90 @@
   font-size: 0.68rem;
   line-height: 1.5;
   color: #8c6f7d;
+  transition: opacity 160ms ease;
+}
+
+/* ---------- Sidebar colapsado (escritorio) ---------- */
+
+.app-shell.is-collapsed .sidebar {
+  width: var(--sidebar-collapsed-w);
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.app-shell.is-collapsed .sidebar__brand {
+  flex-direction: column;
+  gap: 14px;
+  padding: 2px 0 22px;
+}
+
+.app-shell.is-collapsed .brand-mark {
+  width: 42px;
+  height: 34px;
+}
+
+.app-shell.is-collapsed .brand-text,
+.app-shell.is-collapsed .nav-group__label,
+.app-shell.is-collapsed .nav-link__label,
+.app-shell.is-collapsed .sidebar-user__info,
+.app-shell.is-collapsed .sidebar-logout__label,
+.app-shell.is-collapsed .sidebar-card,
+.app-shell.is-collapsed .sidebar__copyright {
+  display: none;
+}
+
+.app-shell.is-collapsed .nav-link {
+  justify-content: center;
+  gap: 0;
+  padding: 12px 0;
+}
+
+.app-shell.is-collapsed .nav-link:hover {
+  transform: translateX(0) scale(1.05);
+}
+
+.app-shell.is-collapsed .nav-link.active::after {
+  right: 8px;
+  top: 8px;
+}
+
+.app-shell.is-collapsed .sidebar__footer {
+  align-items: center;
+}
+
+.app-shell.is-collapsed .sidebar-user {
+  justify-content: center;
+  padding: 4px;
+}
+
+.app-shell.is-collapsed .sidebar-logout {
+  justify-content: center;
+  width: 42px;
+  padding: 10px 0;
+}
+
+.app-shell.is-collapsed .sidebar__collapse {
+  margin-left: 0;
 }
 
 /* ---------- Contenido principal ---------- */
 
 .app-main {
+  position: relative;
+  z-index: 1;
   display: flex;
   width: calc(100% - var(--sidebar-w));
   min-height: 100vh;
   margin-left: var(--sidebar-w);
   flex-direction: column;
+  transition:
+    width 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    margin-left 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.app-shell.is-collapsed .app-main {
+  width: calc(100% - var(--sidebar-collapsed-w));
+  margin-left: var(--sidebar-collapsed-w);
 }
 
 .topbar {
@@ -207,7 +531,7 @@
   gap: 20px;
   padding: 12px 32px;
   border-bottom: 1px solid rgba(240, 229, 218, 0.85);
-  background: rgba(248, 241, 231, 0.82);
+  background: rgba(248, 241, 231, 0.78);
   backdrop-filter: blur(16px);
 }
 
@@ -219,7 +543,8 @@
 }
 
 .topbar__menu {
-  display: none;
+  display: inline-flex;
+  flex-shrink: 0;
 }
 
 .breadcrumb {
@@ -314,6 +639,8 @@
   display: none;
 }
 
+/* ---------- Media queries ---------- */
+
 @media (max-width: 1080px) {
   .topbar__date {
     display: none;
@@ -325,17 +652,76 @@
     --sidebar-w: 280px;
   }
 
+  .app-shell,
+  .app-shell.is-collapsed {
+    display: block;
+  }
+
+  .app-shell::before {
+    display: none;
+  }
+
+  .app-shell.is-collapsed .sidebar {
+    width: var(--sidebar-w);
+    padding: 24px 18px 20px;
+  }
+
+  .app-shell.is-collapsed .sidebar__brand {
+    flex-direction: row;
+    gap: 12px;
+    padding: 2px 8px 24px;
+  }
+
+  .app-shell.is-collapsed .brand-mark {
+    width: 56px;
+    height: 42px;
+  }
+
+  .app-shell.is-collapsed .brand-text,
+  .app-shell.is-collapsed .nav-group__label,
+  .app-shell.is-collapsed .nav-link__label,
+  .app-shell.is-collapsed .sidebar-user__info,
+  .app-shell.is-collapsed .sidebar-logout__label,
+  .app-shell.is-collapsed .sidebar-card,
+  .app-shell.is-collapsed .sidebar__copyright {
+    display: revert;
+  }
+
+  .app-shell.is-collapsed .brand-text,
+  .app-shell.is-collapsed .sidebar-user__info {
+    display: flex;
+  }
+
+  .app-shell.is-collapsed .nav-link {
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 11px 13px;
+  }
+
+  .app-shell.is-collapsed .sidebar-user {
+    justify-content: flex-start;
+    padding: 6px 8px;
+  }
+
+  .app-shell.is-collapsed .sidebar-logout {
+    width: auto;
+    padding: 9px 12px;
+  }
+
   .sidebar {
     transform: translateX(-104%);
-    transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .sidebar.is-open {
     transform: translateX(0);
   }
 
-  .sidebar__close {
+  .sidebar .sidebar__close {
     display: inline-flex;
+  }
+
+  .sidebar .sidebar__collapse {
+    display: none;
   }
 
   .sidebar-overlay {
@@ -356,17 +742,14 @@
     pointer-events: auto;
   }
 
-  .app-main {
+  .app-main,
+  .app-shell.is-collapsed .app-main {
     width: 100%;
     margin-left: 0;
   }
 
   .topbar {
     padding: 10px 18px;
-  }
-
-  .topbar__menu {
-    display: inline-flex;
   }
 
   .topbar__user-info {
@@ -384,10 +767,6 @@
 }
 
 @media (max-width: 560px) {
-  .topbar__date {
-    display: none;
-  }
-
   .breadcrumb {
     font-size: 0.76rem;
   }
@@ -397,6 +776,17 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .app-ambient .soft-aurora,
+  .app-ambient__orb,
+  .sidebar__beam,
+  .sidebar__spark {
+    animation: none;
+  }
+}
+
+/* ---------- Animaciones ---------- */
+
 @keyframes page-enter {
   from {
     opacity: 0;
@@ -405,5 +795,70 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes ambient-breathe {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.06) translate3d(-1.4%, 1.2%, 0);
+  }
+}
+
+@keyframes orb-float-one {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-38px, 42px, 0) scale(1.12);
+  }
+}
+
+@keyframes orb-float-two {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.06);
+  }
+  to {
+    transform: translate3d(46px, -34px, 0) scale(0.94);
+  }
+}
+
+@keyframes orb-float-three {
+  from {
+    transform: translate3d(0, 0, 0) scale(0.96);
+  }
+  to {
+    transform: translate3d(24px, -48px, 0) scale(1.14);
+  }
+}
+
+@keyframes beam-drift {
+  0%,
+  100% {
+    transform: rotate(8deg) translateX(-12%);
+    opacity: 0.35;
+  }
+  50% {
+    transform: rotate(8deg) translateX(18%);
+    opacity: 0.7;
+  }
+}
+
+@keyframes spark-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.6);
+  }
+  30% {
+    opacity: 0.9;
+  }
+  70% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-70px) scale(1.1);
   }
 }
